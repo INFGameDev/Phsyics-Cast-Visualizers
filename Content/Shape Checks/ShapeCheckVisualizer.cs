@@ -1,48 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using System;
 
-namespace PhysicsCastVisualizers
+namespace PhysicsCastVisualizer
 {
-    public abstract class ShapeCheckVisualizer : CastVisualizer
+    public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
     {
         [SerializeField] protected bool hasDirection;
         [SerializeField] protected Mesh castMesh;
         [SerializeField] protected Vector3 offset;
-        protected float directionAxisSize = 0;
-        public event Action OnDetectionEnter;
-        public event Action OnDetectionExit;
-        protected virtual void Update() 
+        [SerializeField] protected UnityEvent OnDetectionEnter;
+        [SerializeField] protected UnityEvent OnDetectionExit;
+        public event Action OnDetectionEnter_;
+        public event Action OnDetectionExit_;
+
+        protected override void AutoCast() 
         {
-            rotation = useParentRot ? transform.parent.rotation : transform.rotation;
-
-            if (autoCast)
-                AutoCast();
-        }
-
-        protected virtual void AutoCast() {
             bool hasHitNow = Cast();
 
             if (hasHitNow != hasHit)
             {
                 if (hasHitNow) {
                     OnDetectionEnter?.Invoke();
+                    OnDetectionEnter_?.Invoke();
                 } else {
                     OnDetectionExit?.Invoke();
+                    OnDetectionExit_?.Invoke();
                 }
             }
 
             hasHit = hasHitNow;
         }
 
-        public virtual bool ManualCast()
+        protected abstract bool Cast();
+        public override bool ManualCast()
         {
+            base.ManualCast();
             hasHit = Cast();
             return hasHit;
         }
-
-        protected abstract bool Cast();
 
         protected Vector3 CalculateCastPosition(float directionBodySize)
         {
@@ -50,6 +48,7 @@ namespace PhysicsCastVisualizers
             relativePosition = transform.position + rotationOffset;
             return relativePosition;
         }
+        
     }
 
 }

@@ -2,48 +2,84 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PhysicsCastVisualizers
+namespace PhysicsCastVisualizer
 {
-    [AddComponentMenu("Physics Cast Visualizers/Shape Casts/Cast Box")]
+    [AddComponentMenu("Physics Cast Visualizer/Shape Casts/Cast Box")]
     public class CastBox : ShapeCastVisualizer
     {
         [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize  = Vector3.one / 2;
 
-        private void Awake() => visualize = true;
-        
-        protected override void Cast()
+        protected override bool Cast()
         {
-            visualize = true;
-            hasHit = false;
+            bool hasHitNow = false;
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
 
-            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hit, transform.rotation, maxDistance, collidingLayers, 
-                detectTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore))
+            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hit_, transform.rotation, maxDistance, collidingLayers, 
+                EvaluateTriggerDetection()))
             {
-                for (int i = 0; i < targetTags.Length; i++)
+                if (targetTags.Length > 0)
                 {
-                    if (hit.transform.CompareTag(targetTags[i])) {
-                        hasHit = true;
-                        break;
-                    }
-                }    
+                    for (int i = 0; i < targetTags.Length; i++)
+                    {
+                        if (hit_.transform.CompareTag(targetTags[i])) {
+                            hasHitNow = true;
+                            break;
+                        }
+                    }                     
+                } else {
+                    hasHitNow = true;                   
+                }
             }
 
             // hasHit = Physics.BoxCast(posWOffset, extentSize, castDirection, out hit, transform.rotation, maxDistance, collidingLayers, 
             //     detectTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore);
-
-            if (visualizeOverride && visualize)
-                DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit ? Color.red : Color.white); 
+                
+            return hasHitNow;
         }
 
-        void OnDrawGizmos()
+        public virtual RaycastHit? ManualCast(float lenght, float width, float height)
         {
-            if (!Application.isPlaying && visualizeOverride)
+            base.ManualCast();
+            this.maxDistance = lenght;
+
+            switch (direction)
             {
-                Vector3 posWOffset = transform.position + GetLocalCastDirection(direction) * directionOriginOffset;
-                DrawCube(GetLocalCastDirection(direction) * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, Color.white);         
+                case CastDirection.Forward:
+                case CastDirection.Back:
+                    extentSize = new Vector3(width/2, height/2, 0);
+                    break;
+                case CastDirection.Right:
+                case CastDirection.Left:
+                    extentSize = new Vector3(0, width/2, height/2);
+                    break;
+                case CastDirection.Up:
+                case CastDirection.Down:
+                    extentSize = new Vector3(width/2, 0, height/2);
+                    break;
             }
+
+            hasHit = Cast();
+            return hit;
+        }
+
+        public virtual RaycastHit? ManualCast(float lenght)
+        { 
+            base.ManualCast();
+            this.maxDistance = lenght;
+            hasHit = Cast();
+            return hit;
+        }
+
+        protected override void OnDrawGizmos()
+        {
+            base.OnDrawGizmos();
+            if (!visualize)
+                return;
+
+            Vector3 castDirection = GetLocalCastDirection(direction);
+            Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
+            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit ? Color.red : Color.white);        
         }
 
         private Vector3 GetExtentSize()
@@ -103,48 +139,6 @@ namespace PhysicsCastVisualizers
 
             Debug.DrawLine(points[4], points[5], color);
             Debug.DrawLine(points[4], points[6], color);   
-        }
-
-        public virtual RaycastHit? CastForward(float lenght, float width, float height)
-        {
-            this.maxDistance = lenght;
-            autoCast = false;
-
-            switch (direction)
-            {
-                case CastDirection.Forward:
-                case CastDirection.Back:
-                    extentSize = new Vector3(width/2, height/2, 0);
-                    break;
-                case CastDirection.Right:
-                case CastDirection.Left:
-                    extentSize = new Vector3(0, width/2, height/2);
-                    break;
-                case CastDirection.Up:
-                case CastDirection.Down:
-                    extentSize = new Vector3(width/2, 0, height/2);
-                    break;
-            }
-
-            Cast();
-
-            if (hasHit)
-                return hit;
-
-            return null;
-        }
-
-        public virtual RaycastHit? CastForward(float lenght)
-        {
-            this.maxDistance = lenght;
-            autoCast = false;
-
-            Cast();
-
-            if (hasHit)
-                return hit;
-
-            return null;
         }
     }
    

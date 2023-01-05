@@ -1,20 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
-using MyBox;
+using System;
+using UnityEngine.Events;
 
-namespace PhysicsCastVisualizers
+namespace PhysicsCastVisualizer
 {
-    public abstract class ShapeCastVisualizer : CastVisualizer
+    public abstract class ShapeCastVisualizer : CastVisualizer<RaycastHit?>
     {
+        [SerializeField, DisplayOnly] protected string hitName;
         [SerializeField] protected float maxDistance;
         [SerializeField] protected float directionOriginOffset;
-        [SerializeField, Tag] protected string[] targetTags;
-        protected float directionAxisSize = 0;
-        protected RaycastHit hit;
+        [SerializeField, TagsSelection] protected string[] targetTags;
+        protected RaycastHit hit_;
+        public RaycastHit? hit {
+            get 
+                {
+                    if (hit_.collider != null && hasHit)
+                        return hit_;
+
+                    return null;
+                }
+        }
+
+        public event Action<RaycastHit> OnDetectionEnter_;
+        public event Action<RaycastHit> OnDetectionExit_;
+        [SerializeField] protected UnityEvent<RaycastHit> OnDetectionEnter;
+        [SerializeField] protected UnityEvent<RaycastHit> OnDetectionExit;
+        
+
         protected Vector3 GetLocalCastDirection(CastDirection direction)
         {
+
             Vector3 castDirection = Vector3.zero;
 
             switch (direction)
@@ -47,22 +64,36 @@ namespace PhysicsCastVisualizers
             directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
         }
 
-        protected void Update() 
+        protected override void Update() 
         {
-            if (autoCast)
-                Cast();
+            base.Update();
+            hitName = hit_.collider != null ? hit_.collider.name : string.Empty;
         }
 
-        protected abstract void Cast();
-        public virtual RaycastHit? ManualCast()
+        protected override void AutoCast()
         {
-            autoCast = false;
-            Cast();
+            bool hasHitNow = Cast();
 
-            if (hasHit)
-                return hit;
+            if (hasHitNow != hasHit)
+            {
+                if (hasHitNow) {
+                    OnDetectionEnter?.Invoke(hit_);
+                    OnDetectionEnter_?.Invoke(hit_);
+                } else {
+                    OnDetectionExit?.Invoke(hit_);
+                    OnDetectionExit_?.Invoke(hit_);
+                }
+            }
 
-            return null;
+            hasHit = hasHitNow;
+        }
+
+        protected abstract bool Cast();
+        public override RaycastHit? ManualCast()
+        {
+            base.ManualCast();
+            hasHit =  Cast();
+            return hit;
         }
     }
 

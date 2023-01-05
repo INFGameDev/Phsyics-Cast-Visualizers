@@ -1,32 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MyBox;
 
-namespace PhysicsCastVisualizers
+namespace PhysicsCastVisualizer
 {
-    public abstract class ShapeOverlapVisualizer : CastVisualizer
+    public abstract class ShapeOverlapVisualizer : CastVisualizer<bool> 
     {
         [SerializeField] protected int detectionCountLimit = 1;
         [SerializeField, DisplayOnly] protected List<Collider> detectedColliders;
-        [SerializeField, Tag] protected string[] compareTags;
+        [SerializeField, TagsSelection] protected string[] compareTags;
         [SerializeField] protected Mesh castMesh;
         [SerializeField] protected Vector3 offset;
         protected Collider[] initiallyDetectedColliders;
         protected Collider[] finalOutput;
-        protected virtual void Update() 
+        protected override void AutoCast() => Cast();
+
+        public override bool ManualCast()
         {
-            rotation = useParentRot ? transform.parent.rotation : transform.rotation;
-
-            if (autoCast)
-                AutoCast();
-        }
-
-        protected virtual void AutoCast() => Cast();
-
-        public virtual bool ManualCast()
-        {
-            autoCast = false;
             Cast();
             return hasHit;
         }

@@ -4,9 +4,9 @@ using UnityEngine;
 using System;
 using UnityEngine.Profiling;
 
-namespace PhysicsCastVisualizers
+namespace PhysicsCastVisualizer
 {
-    [AddComponentMenu("Physics Cast Visualizers/Shape Overlaps/Sphere Overlap")]
+    [AddComponentMenu("Physics Cast Visualizer/Shape Overlaps/Sphere Overlap")]
     public class SphereOverlap : ShapeOverlapVisualizer
     {
         [SerializeField] protected float radius = 1;
@@ -48,13 +48,14 @@ namespace PhysicsCastVisualizers
             return relativePosition;
         }
 
-        void OnDrawGizmos() 
+        protected override void OnDrawGizmos() 
         {
-            if(Application.isPlaying && visualize && visualizeOverride)
-            {
-                Gizmos.color = hasHit ? Color.red : Color.green; 
-                Gizmos.DrawWireSphere(relativePosition, radius);
-            }
+            base.OnDrawGizmos();
+            if (!visualize)
+                return;
+
+            Gizmos.color = hasHit ? Color.red : Color.green; 
+            Gizmos.DrawWireSphere(relativePosition, radius);
         }
     }   
 }
