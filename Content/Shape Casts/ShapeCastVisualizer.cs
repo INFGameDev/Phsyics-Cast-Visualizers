@@ -61,7 +61,7 @@ namespace PhysicsCastVisualizer
 
         protected virtual void OnValidate() {
             maxDistance = Mathf.Clamp(maxDistance, 0, Mathf.Infinity);
-            directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
+            // directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
         }
 
         protected override void Update() 
