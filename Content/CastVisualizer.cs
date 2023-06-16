@@ -12,13 +12,13 @@ namespace PhysicsCastVisualizer
 {
     public abstract class CastVisualizer<T> : MonoBehaviour 
     {
+        [field: SerializeField] public string ID {get; protected set;}
+
         [SerializeField] protected bool visualize;
         [SerializeField] protected LayerMask collidingLayers;
         [SerializeField] protected bool detectTriggers;
-        [SerializeField] protected bool useParentRot;
         [SerializeField] protected CastDirection direction;
 
-        [field: SerializeField] public string ID {get; protected set;}
         [field: SerializeField, DisplayOnly] public bool hasHit {get; protected set;}
 
 
