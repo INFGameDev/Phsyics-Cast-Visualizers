@@ -41,7 +41,7 @@ namespace PhysicsCastVisualizer
         protected override bool Cast()
         {
             SetDirectionAxisSize();
-            return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, rotation, collidingLayers, EvaluateTriggerDetection());
+            return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, transform.rotation, collidingLayers, EvaluateTriggerDetection());
         }
 
         protected override void OnDrawGizmos() 
@@ -53,12 +53,12 @@ namespace PhysicsCastVisualizer
             if(Application.isPlaying)
             {
                 Gizmos.color = hasHit ? Color.red : Color.green;
-                Gizmos.DrawWireMesh(castMesh, relativePosition, rotation, size);
+                Gizmos.DrawWireMesh(castMesh, relativePosition, transform.rotation, size);
             }
             else if (!Application.isPlaying)
             {
                 SetDirectionAxisSize();
-                Gizmos.DrawWireMesh(castMesh, CalculateCastPosition(directionAxisSize/2), rotation, size);
+                Gizmos.DrawWireMesh(castMesh, CalculateCastPosition(directionAxisSize/2), transform.rotation, size);
             }
         }
     }   
