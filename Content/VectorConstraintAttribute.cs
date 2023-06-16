@@ -18,41 +18,12 @@ namespace PhysicsCastVisualizer
 
 	[CustomPropertyDrawer(typeof(VectorConstraintAttribute))]
 	class VectorConstraintDrawer: PropertyDrawer {
-
-
-			// public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-			// {
-			// 	if (!(attribute is VectorConstraintAttribute conditional)) return 0;
-
-			// 	Debug.Log(conditional.FieldToCheck == null);
-
-			// 	return EditorGUI.GetPropertyHeight(property);
-			// }
-
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) 
 		{
-
-			// ----------------------------------------------------------------------------------------------------------------------------
-			// OnGUI runs at least twice per frame
-			// One of those is to calculate layouts and the other is to actually draw stuff ("repaint")
-
-			// EventType.Layout - This event is sent prior to anything else - this is a chance to perform any initialization. It is used by the automatic layout system.
-			// EventType.Repaint - A repaint event. One is sent every frame, All other events are processed first, then the repaint event is sent.
-			
-
-			// it seems that on lower versionf of unity below 2021 or 2020; any kind of UI state modification is not allowed
-			// while doing repaint but works fine on 2021 where this script is written on
-
-			// so draw call is executed during the layout event
-			if (Event.current.type != EventType.Layout)
-				return;
-
-			// ----------------------------------------------------------------------------------------------------------------------------
-
 			VectorConstraintAttribute VCA = attribute as VectorConstraintAttribute;
 			var direction = property.serializedObject.FindProperty(VCA.directionField);
 			string[] enumNames = direction.enumNames;
-
 
 			if (direction.enumValueIndex == 0 || direction.enumValueIndex == 1) // FORWARD | BACK
 			{
@@ -85,7 +56,7 @@ namespace PhysicsCastVisualizer
 
 				property.vector3Value = v;
 			}
-		
+
 			property.serializedObject.ApplyModifiedProperties();
 		}
 
@@ -114,4 +85,3 @@ namespace PhysicsCastVisualizer
 	}
 	#endif	
 }
-
