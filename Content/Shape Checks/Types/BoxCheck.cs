@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     // [DisallowMultipleComponent]
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Box Check")]
@@ -41,7 +41,7 @@ namespace PhysicsCastVisualizer
         protected override bool Cast()
         {
             SetDirectionAxisSize();
-            return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, transform.rotation, collidingLayers, EvaluateTriggerDetection());
+            return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, transform.rotation, collidingLayers, GetTriggerInteraction());
         }
 
         protected override void OnDrawGizmos() 

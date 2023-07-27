@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     [AddComponentMenu("Physics Cast Visualizer/Shape Casts/Cast Box")]
     public class CastBox : ShapeCastVisualizer
     {
+        [BoxDivider("Cast Box Properties")]
         [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize  = Vector3.one / 2;
 
         protected override bool Cast()
@@ -16,7 +17,7 @@ namespace PhysicsCastVisualizer
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
 
             if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hit_, transform.rotation, maxDistance, collidingLayers, 
-                EvaluateTriggerDetection()))
+                GetTriggerInteraction()))
             {
                 if (targetTags.Length > 0)
                 {
@@ -79,7 +80,7 @@ namespace PhysicsCastVisualizer
 
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
-            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit ? Color.red : Color.white);        
+            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit ? hasHitColor : castColor);     
         }
 
         private Vector3 GetExtentSize()

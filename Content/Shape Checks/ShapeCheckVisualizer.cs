@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
     {

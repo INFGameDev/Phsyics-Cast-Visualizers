@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Profiling;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     [AddComponentMenu("Physics Cast Visualizer/Shape Overlaps/Sphere Overlap")]
     public class SphereOverlap : ShapeOverlapVisualizer
@@ -16,7 +16,7 @@ namespace PhysicsCastVisualizer
         {
             detectedColliders.Clear();
             initiallyDetectedColliders = new Collider[detectionCountLimit];
-            int initialDetectedCount = Physics.OverlapSphereNonAlloc(CalculateCastPosition(radius), radius, initiallyDetectedColliders, collidingLayers, EvaluateTriggerDetection() );
+            int initialDetectedCount = Physics.OverlapSphereNonAlloc(CalculateCastPosition(radius), radius, initiallyDetectedColliders, collidingLayers, GetTriggerInteraction() );
 
             int detectedColliderCount = 0;
             for (int i = 0; i < initialDetectedCount; i++)

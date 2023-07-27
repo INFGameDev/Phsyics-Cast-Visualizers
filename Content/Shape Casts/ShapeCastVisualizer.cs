@@ -4,15 +4,27 @@ using UnityEngine;
 using System;
 using UnityEngine.Events;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     public abstract class ShapeCastVisualizer : CastVisualizer<RaycastHit?>
     {
-        [SerializeField, DisplayOnly] protected string hitName;
-        [SerializeField] protected float maxDistance;
-        [SerializeField] protected float directionOriginOffset;
-        [SerializeField, TagsSelection] protected string[] targetTags;
+        public event Action<RaycastHit> OnDetectionEnter_;
+        public event Action<RaycastHit> OnDetectionExit_;
         protected RaycastHit hit_;
+
+
+        [BoxDivider("Shape Cast Properties")]
+
+        [SerializeField] protected float maxDistance;
+        
+        [SerializeField, TagsSelection, Space(5)] protected string[] targetTags;
+        [SerializeField, Space(5)] protected float directionOriginOffset;
+        [SerializeField, Space(5)] protected UnityEvent<RaycastHit> OnDetectionEnter;
+        [SerializeField, Space(5)] protected UnityEvent<RaycastHit> OnDetectionExit;
+
+        [SerializeField, DisplayOnly, Space(5)] protected string hitName;
+
+        
         public RaycastHit? hit {
             get 
                 {
@@ -22,12 +34,6 @@ namespace PhysicsCastVisualizer
                     return null;
                 }
         }
-
-        public event Action<RaycastHit> OnDetectionEnter_;
-        public event Action<RaycastHit> OnDetectionExit_;
-        [SerializeField] protected UnityEvent<RaycastHit> OnDetectionEnter;
-        [SerializeField] protected UnityEvent<RaycastHit> OnDetectionExit;
-        
 
         protected Vector3 GetLocalCastDirection(CastDirection direction)
         {
@@ -64,12 +70,6 @@ namespace PhysicsCastVisualizer
             // directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
         }
 
-        protected override void Update() 
-        {
-            base.Update();
-            hitName = hit_.collider != null ? hit_.collider.name : string.Empty;
-        }
-
         protected override void AutoCast()
         {
             bool hasHitNow = Cast();
@@ -86,12 +86,14 @@ namespace PhysicsCastVisualizer
             }
 
             hasHit = hasHitNow;
+            hitName = hit_.collider != null ? hit_.collider.name : string.Empty;
         }
 
         protected abstract bool Cast();
+
         public override RaycastHit? ManualCast()
         {
-            base.ManualCast();
+            autoCast = false;
             hasHit =  Cast();
             return hit;
         }

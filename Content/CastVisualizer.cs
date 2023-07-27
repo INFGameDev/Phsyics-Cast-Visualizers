@@ -8,46 +8,46 @@ using System;
 using UnityEditor;
 #endif
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     public abstract class CastVisualizer<T> : MonoBehaviour 
     {
-        [field: SerializeField] public string ID {get; protected set;}
-
-        [SerializeField] protected bool visualize;
-        [SerializeField] protected LayerMask collidingLayers;
-        [SerializeField] protected bool detectTriggers;
-        [SerializeField] protected CastDirection direction;
-
-        [field: SerializeField, DisplayOnly] public bool hasHit {get; protected set;}
-
-
-        public bool autoCast = true;
-
-        protected Vector3 rotationOffset;
-        protected Vector3 relativePosition;
-        // protected Quaternion rotation;
-
         public enum CastDirection { Forward, Back, Right, Left, Up, Down }
         protected Vector3[] GlobalCastDirections = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left, Vector3.up, Vector3.down };
 
+        [BoxDivider("Visualizer Properties")]
+
+        [SerializeField] protected bool visualize;
+
+        [SerializeField] protected LayerMask collidingLayers;
+        [SerializeField] protected bool detectTriggers;
+        [SerializeField] protected CastDirection direction;
+        [SerializeField] protected bool autoCast = true;
+        [SerializeField] protected Color castColor = Color.white;
+        [SerializeField] protected Color hasHitColor = Color.red;
+ 
+        [field: SerializeField, DisplayOnly] public bool hasHit {get; protected set;} = false;
+
+        protected Vector3 rotationOffset;
+        protected Vector3 relativePosition;
+
         public void Visualize(bool b) => visualize = b;
-        public override string ToString() => String.Format("{0}| {1}", gameObject.name, ID);
-        protected QueryTriggerInteraction EvaluateTriggerDetection() => detectTriggers ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
+        protected QueryTriggerInteraction GetTriggerInteraction() => detectTriggers ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
+        
         protected abstract void AutoCast();
+
         public virtual T ManualCast()
         {
             autoCast = false;
             return default(T);
         }
+        
         protected virtual void Update() 
         {
-            // rotation = useParentRot ? transform.parent.rotation : transform.rotation;
             if (autoCast)
                 AutoCast();
         }
 
-        // protected virtual void OnDrawGizmos() => rotation = useParentRot ? transform.parent.rotation : transform.rotation;
         protected virtual void OnDrawGizmos(){}
     }
 
@@ -112,8 +112,6 @@ namespace PhysicsCastVisualizer
     #endif
 
     #endregion  Attributes ====================================================================================================
-
-
 }
 
 

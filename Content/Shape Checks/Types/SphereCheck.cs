@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PhysicsCastVisualizer
+namespace PhysCastVisualier
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Sphere Check")]
@@ -10,7 +10,7 @@ namespace PhysicsCastVisualizer
     {
         [SerializeField] protected float radius = 1;
 
-        protected override bool Cast() => Physics.CheckSphere(CalculateCastPosition(radius), radius, collidingLayers, EvaluateTriggerDetection());
+        protected override bool Cast() => Physics.CheckSphere(CalculateCastPosition(radius), radius, collidingLayers, GetTriggerInteraction());
         protected override void OnDrawGizmos() 
         {
             base.OnDrawGizmos();
