@@ -11,9 +11,8 @@ namespace PhysCastVisualier
         [SerializeField] protected float radius = 1;
 
         protected override bool Cast() => Physics.CheckSphere(CalculateCastPosition(radius), radius, collidingLayers, GetTriggerInteraction());
-        protected override void OnDrawGizmos() 
+        protected void OnDrawGizmos() 
         {
-            base.OnDrawGizmos();
             if (!visualize)
                 return;
 

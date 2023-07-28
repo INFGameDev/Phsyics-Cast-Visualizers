@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace PhysCastVisualier
 {
-    public abstract class CastVisualizer<T> : MonoBehaviour 
+    public abstract class CastVisualizer : MonoBehaviour 
     {
         public enum CastDirection { Forward, Back, Right, Left, Up, Down }
         protected Vector3[] GlobalCastDirections = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left, Vector3.up, Vector3.down };
@@ -31,26 +31,24 @@ namespace PhysCastVisualier
         protected Vector3 rotationOffset;
         protected Vector3 relativePosition;
 
+        /// <summary>
+        /// raycast cast check (unreliable accuracy: used for visualization renders)
+        /// </summary>
+        protected bool casting;
+
         public void Visualize(bool b) => visualize = b;
         protected QueryTriggerInteraction GetTriggerInteraction() => detectTriggers ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
+        protected QueryTriggerInteraction GetTriggerInteraction(bool doDetect) =>  doDetect ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
         
-        protected abstract void AutoCast();
-
-        public virtual T ManualCast()
-        {
-            autoCast = false;
-            return default(T);
-        }
-        
+        protected abstract void AutoCast();        
         protected virtual void Update() 
         {
-            if (autoCast)
+            if (autoCast) {
                 AutoCast();
+            }
+        
         }
-
-        protected virtual void OnDrawGizmos(){}
     }
-
     #region Attributes ====================================================================================================
     public class DisplayOnlyAttribute : PropertyAttribute
     {

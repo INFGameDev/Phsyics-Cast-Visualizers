@@ -48,9 +48,8 @@ namespace PhysCastVisualier
             return relativePosition;
         }
 
-        protected override void OnDrawGizmos() 
+        protected void OnDrawGizmos() 
         {
-            base.OnDrawGizmos();
             if (!visualize)
                 return;
 

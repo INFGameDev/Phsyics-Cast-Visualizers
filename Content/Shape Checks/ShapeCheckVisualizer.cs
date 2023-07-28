@@ -6,7 +6,7 @@ using System;
 
 namespace PhysCastVisualier
 {
-    public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
+    public abstract class ShapeCheckVisualizer : CastVisualizer
     {
         [SerializeField] protected bool hasDirection;
         [SerializeField] protected Mesh castMesh;
@@ -35,12 +35,12 @@ namespace PhysCastVisualier
         }
 
         protected abstract bool Cast();
-        public override bool ManualCast()
-        {
-            base.ManualCast();
-            hasHit = Cast();
-            return hasHit;
-        }
+        // public override bool ManualCast()
+        // {
+        //     base.ManualCast();
+        //     hasHit = Cast();
+        //     return hasHit;
+        // }
 
         protected Vector3 CalculateCastPosition(float directionBodySize)
         {

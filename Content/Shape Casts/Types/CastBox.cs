@@ -10,77 +10,65 @@ namespace PhysCastVisualier
         [BoxDivider("Cast Box Properties")]
         [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize  = Vector3.one / 2;
 
+
+
         protected override bool Cast()
         {
+            casting = true;
             bool hasHitNow = false;
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
 
-            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hit_, transform.rotation, maxDistance, collidingLayers, 
-                GetTriggerInteraction()))
+            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out _hit, transform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
             {
-                if (targetTags.Length > 0)
-                {
-                    for (int i = 0; i < targetTags.Length; i++)
-                    {
-                        if (hit_.transform.CompareTag(targetTags[i])) {
-                            hasHitNow = true;
-                            break;
-                        }
-                    }                     
-                } else {
-                    hasHitNow = true;                   
-                }
+                hasHitNow = CheckTags();
             }
 
-            // hasHit = Physics.BoxCast(posWOffset, extentSize, castDirection, out hit, transform.rotation, maxDistance, collidingLayers, 
-            //     detectTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore);
-                
             return hasHitNow;
         }
 
-        public virtual RaycastHit? ManualCast(float lenght, float width, float height)
+        public RaycastHit? ManualCast(
+            Vector2 extents, 
+            CastVisualizer.CastDirection direction, 
+            float distance, 
+            LayerMask targetLayers, 
+            bool detectTriggers
+        )
         {
-            base.ManualCast();
-            this.maxDistance = lenght;
-
             switch (direction)
             {
                 case CastDirection.Forward:
                 case CastDirection.Back:
-                    extentSize = new Vector3(width/2, height/2, 0);
+                    extentSize = new Vector3(extents.x, extents.y, 0);
                     break;
                 case CastDirection.Right:
                 case CastDirection.Left:
-                    extentSize = new Vector3(0, width/2, height/2);
+                    extentSize = new Vector3(0, extents.x, extents.y);
                     break;
                 case CastDirection.Up:
                 case CastDirection.Down:
-                    extentSize = new Vector3(width/2, 0, height/2);
+                    extentSize = new Vector3(extents.x, 0, extents.y);
                     break;
             }
 
-            hasHit = Cast();
+            this.direction = direction;
+            this.maxDistance = distance;
+            this.collidingLayers = targetLayers;
+            this.GetTriggerInteraction(detectTriggers);
+
+            EventCheck(Cast());
             return hit;
         }
 
-        public virtual RaycastHit? ManualCast(float lenght)
-        { 
-            base.ManualCast();
-            this.maxDistance = lenght;
-            hasHit = Cast();
-            return hit;
-        }
-
-        protected override void OnDrawGizmos()
+        protected void OnDrawGizmos()
         {
-            base.OnDrawGizmos();
             if (!visualize)
                 return;
 
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
-            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit ? hasHitColor : castColor);     
+            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit && casting ? hasHitColor : castColor);     
+            casting = false;
         }
 
         private Vector3 GetExtentSize()

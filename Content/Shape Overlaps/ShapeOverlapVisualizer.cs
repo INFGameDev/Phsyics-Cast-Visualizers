@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PhysCastVisualier
 {
-    public abstract class ShapeOverlapVisualizer : CastVisualizer<bool> 
+    public abstract class ShapeOverlapVisualizer : CastVisualizer
     {
         [SerializeField] protected int detectionCountLimit = 1;
         [SerializeField, DisplayOnly] protected List<Collider> detectedColliders;
@@ -15,11 +15,11 @@ namespace PhysCastVisualier
         protected Collider[] finalOutput;
         protected override void AutoCast() => Cast();
 
-        public override bool ManualCast()
-        {
-            Cast();
-            return hasHit;
-        }
+        // public override bool ManualCast()
+        // {
+        //     Cast();
+        //     return hasHit;
+        // }
 
         protected abstract void Cast(); 
     }

@@ -6,11 +6,11 @@ using UnityEngine.Events;
 
 namespace PhysCastVisualier
 {
-    public abstract class ShapeCastVisualizer : CastVisualizer<RaycastHit?>
+    public abstract class ShapeCastVisualizer : CastVisualizer
     {
         public event Action<RaycastHit> OnDetectionEnter_;
         public event Action<RaycastHit> OnDetectionExit_;
-        protected RaycastHit hit_;
+        protected RaycastHit _hit;
 
 
         [BoxDivider("Shape Cast Properties")]
@@ -23,13 +23,15 @@ namespace PhysCastVisualier
         [SerializeField, Space(5)] protected UnityEvent<RaycastHit> OnDetectionExit;
 
         [SerializeField, DisplayOnly, Space(5)] protected string hitName;
+        [SerializeField, DisplayOnly, Space(5)] protected string layerhit;
+        [SerializeField, DisplayOnly, Space(5)] protected string hitTag;
 
         
         public RaycastHit? hit {
             get 
                 {
-                    if (hit_.collider != null && hasHit)
-                        return hit_;
+                    if (_hit.collider != null && hasHit)
+                        return _hit;
 
                     return null;
                 }
@@ -67,35 +69,61 @@ namespace PhysCastVisualier
 
         protected virtual void OnValidate() {
             maxDistance = Mathf.Clamp(maxDistance, 0, Mathf.Infinity);
-            // directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
+            directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
         }
 
         protected override void AutoCast()
         {
-            bool hasHitNow = Cast();
+            EventCheck(Cast());
+        }
+        protected abstract bool Cast();
+        protected bool CheckTags()
+        {
+            bool taggedHitFound = false;
+            if (targetTags.Length > 0) {
+                for (int i = 0; i < targetTags.Length; i++) {
+                    if (_hit.transform.CompareTag(targetTags[i])) {
+                        taggedHitFound = true;
+                        break;
+                    }
+                }                     
+            } else {
+                taggedHitFound = true;                   
+            }
 
+            return taggedHitFound;
+        }
+
+        protected void EventCheck(bool hasHitNow)
+        {
             if (hasHitNow != hasHit)
             {
                 if (hasHitNow) {
-                    OnDetectionEnter?.Invoke(hit_);
-                    OnDetectionEnter_?.Invoke(hit_);
+                    OnDetectionEnter?.Invoke(_hit);
+                    OnDetectionEnter_?.Invoke(_hit);
                 } else {
-                    OnDetectionExit?.Invoke(hit_);
-                    OnDetectionExit_?.Invoke(hit_);
+                    OnDetectionExit?.Invoke(_hit);
+                    OnDetectionExit_?.Invoke(_hit);
                 }
             }
 
             hasHit = hasHitNow;
-            hitName = hit_.collider != null ? hit_.collider.name : string.Empty;
-        }
 
-        protected abstract bool Cast();
-
-        public override RaycastHit? ManualCast()
-        {
-            autoCast = false;
-            hasHit =  Cast();
-            return hit;
+            if (_hit.collider != null) {
+                hitName =_hit.collider.name;
+                hitTag = _hit.collider.tag;
+                layerhit = LayerMask.LayerToName(_hit.collider.gameObject.layer);
+            }
+            else {
+                hitName = string.Empty;
+                hitTag = string.Empty;
+                layerhit = default;
+            }   
         }
     }
 

@@ -44,9 +44,8 @@ namespace PhysCastVisualier
             return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, transform.rotation, collidingLayers, GetTriggerInteraction());
         }
 
-        protected override void OnDrawGizmos() 
+        protected void OnDrawGizmos() 
         {
-            base.OnDrawGizmos();
             if (!visualize)
                 return;
 
