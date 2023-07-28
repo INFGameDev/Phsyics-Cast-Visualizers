@@ -62,7 +62,7 @@ namespace PhysCastVisualier
                 case CastDirection.Back:
                     castDirection = -transform.forward;
                     break;
-            }   
+            }  
 
             return castDirection;
         }
