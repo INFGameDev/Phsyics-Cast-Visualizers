@@ -9,11 +9,12 @@ namespace PhysCastVisualier
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Box Check")]
     public class BoxCheck : ShapeCheckVisualizer
     {
+        [BoxDivider("Box Check Properties")]
         [SerializeField] protected Vector3 size = Vector3.one;
         [SerializeField] private bool formFromScale;
         private float directionAxisSize = 0;
 
-        protected virtual void Start() 
+        protected virtual void Start()
         {
             if (formFromScale)
                 size = transform.localScale;
@@ -40,27 +41,30 @@ namespace PhysCastVisualier
 
         protected override bool Cast()
         {
+            casting = true;
+            castTimeFrame = Time.frameCount;
             SetDirectionAxisSize();
-            return Physics.CheckBox(CalculateCastPosition(directionAxisSize/2), size/2, transform.rotation, collidingLayers, GetTriggerInteraction());
+            return Physics.CheckBox(CalculateCastPosition(directionAxisSize / 2), size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
         }
 
-        protected void OnDrawGizmos() 
+        void OnValidate() {
+            size.x = size.x.Clamp(0, Mathf.Infinity);
+            size.y = size.y.Clamp(0, Mathf.Infinity);
+            size.z = size.z.Clamp(0, Mathf.Infinity);
+        }
+
+        protected override void OnDrawGizmos()
         {
             if (!visualize)
                 return;
 
-            if(Application.isPlaying)
-            {
-                Gizmos.color = hasHit ? Color.red : Color.green;
-                Gizmos.DrawWireMesh(castMesh, relativePosition, transform.rotation, size);
-            }
-            else if (!Application.isPlaying)
-            {
+            if (!Application.isPlaying)
                 SetDirectionAxisSize();
-                Gizmos.DrawWireMesh(castMesh, CalculateCastPosition(directionAxisSize/2), transform.rotation, size);
-            }
+
+            Gizmos.color = GetDebugColor();
+            Gizmos.DrawWireMesh(castMesh, CalculateCastPosition(directionAxisSize / 2), transform.rotation, size);
         }
-    }   
+    }
 }
 
 

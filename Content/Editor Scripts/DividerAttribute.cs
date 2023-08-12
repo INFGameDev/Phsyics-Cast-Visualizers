@@ -7,7 +7,6 @@ using UnityEditor;
     using EG = UnityEditor.EditorGUI;
 #endif
 
-
 public class DividerAttribute : PropertyAttribute
 {
     public readonly string label;

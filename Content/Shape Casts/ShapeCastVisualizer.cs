@@ -6,40 +6,20 @@ using UnityEngine.Events;
 
 namespace PhysCastVisualier
 {
-    public abstract class ShapeCastVisualizer : CastVisualizer
+    public abstract class ShapeCastVisualizer : CastVisualizer<RaycastHit>
     {
-        public event Action<RaycastHit> OnDetectionEnter_;
-        public event Action<RaycastHit> OnDetectionExit_;
-        protected RaycastHit _hit;
-
-
         [BoxDivider("Shape Cast Properties")]
-
-        [SerializeField] protected float maxDistance;
-        
+        [SerializeField, DisplayIf(nameof(hideMaxDistanceField), true)] protected float maxDistance;
         [SerializeField, TagsSelection, Space(5)] protected string[] targetTags;
-        [SerializeField, Space(5)] protected float directionOriginOffset;
-        [SerializeField, Space(5)] protected UnityEvent<RaycastHit> OnDetectionEnter;
-        [SerializeField, Space(5)] protected UnityEvent<RaycastHit> OnDetectionExit;
-
+        [SerializeField, DisplayIf(nameof(hideDirectionOriginOffsetField), true),Space(5)] protected float directionOriginOffset;
         [SerializeField, DisplayOnly, Space(5)] protected string hitName;
         [SerializeField, DisplayOnly, Space(5)] protected string layerhit;
         [SerializeField, DisplayOnly, Space(5)] protected string hitTag;
-
-        
-        public RaycastHit? hit {
-            get 
-                {
-                    if (_hit.collider != null && hasHit)
-                        return _hit;
-
-                    return null;
-                }
-        }
+        [SerializeField, HideInInspector] protected bool hideMaxDistanceField;
+        [SerializeField, HideInInspector] protected bool hideDirectionOriginOffsetField;
 
         protected Vector3 GetLocalCastDirection(CastDirection direction)
         {
-
             Vector3 castDirection = Vector3.zero;
 
             switch (direction)
@@ -72,22 +52,15 @@ namespace PhysCastVisualier
             directionOriginOffset = Mathf.Clamp(directionOriginOffset, 0, Mathf.Infinity);
         }
 
-        protected override void Update()
-        {
-            base.Update();
-        }
-
-        protected override void AutoCast()
-        {
-            EventCheck(Cast());
-        }
+        protected override void AutoCast() => EventCheck(Cast());
         protected abstract bool Cast();
+        protected abstract void OnDrawGizmos();
         protected bool CheckTags()
         {
             bool taggedHitFound = false;
             if (targetTags.Length > 0) {
                 for (int i = 0; i < targetTags.Length; i++) {
-                    if (_hit.transform.CompareTag(targetTags[i])) {
+                    if (!String.IsNullOrEmpty(targetTags[i]) && hitResult.transform.CompareTag(targetTags[i])) {
                         taggedHitFound = true;
                         break;
                     }
@@ -99,31 +72,63 @@ namespace PhysCastVisualier
             return taggedHitFound;
         }
 
-        protected void EventCheck(bool hasHitNow)
+        public RaycastHit ManualCast()
+        {
+            EventCheck(Cast());
+            return hitResult;
+        }
+
+        protected override void EventCheck(bool hasHitNow)
         {
             if (hasHitNow != hasHit)
             {
                 if (hasHitNow) {
-                    OnDetectionEnter?.Invoke(_hit);
-                    OnDetectionEnter_?.Invoke(_hit);
+                    OnDetectionEnter?.Invoke(hitResult);
+                    InvokeOnDetectionEnter_(hitResult);
                 } else {
-                    OnDetectionExit?.Invoke(_hit);
-                    OnDetectionExit_?.Invoke(_hit);
+                    OnDetectionExit?.Invoke(hitResult);
+                    InvokeOnDetectionExit_(hitResult);
                 }
             }
 
             hasHit = hasHitNow;
 
-            if (_hit.collider != null) {
-                hitName =_hit.collider.name;
-                hitTag = _hit.collider.tag;
-                layerhit = LayerMask.LayerToName(_hit.collider.gameObject.layer);
+            if (hitResult.collider != null) {
+                hitName =hitResult.collider.name;
+                hitTag = hitResult.collider.tag;
+                layerhit = LayerMask.LayerToName(hitResult.collider.gameObject.layer);
             }
             else {
                 hitName = string.Empty;
                 hitTag = string.Empty;
                 layerhit = default;
             }   
+        }
+
+        protected override void StateResultReset()
+        {
+            if (autoCast)
+            {
+                hasHit = false;
+                casting = false;
+                hitName = String.Empty;
+                hitTag = String.Empty;
+                layerhit = String.Empty;
+                hitResult = default;
+            }
+            else // manually casted
+            {
+                // check if currently casting, if so don't reset the values and wait for the next frame
+                if (Time.frameCount != castTimeFrame)
+                {
+                    casting = false;
+                    hasHit = false;
+                    hitName = String.Empty;
+                    hitTag = String.Empty;
+                    layerhit = String.Empty;
+                    hitResult = default;
+                }
+            }
         }
     }
 

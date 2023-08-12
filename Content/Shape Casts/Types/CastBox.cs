@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace PhysCastVisualier
 {
@@ -8,30 +9,27 @@ namespace PhysCastVisualier
     public class CastBox : ShapeCastVisualizer
     {
         [BoxDivider("Cast Box Properties")]
-        [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize  = Vector3.one / 2;
-
-
-
+        [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize = Vector3.one / 2;
         protected override bool Cast()
         {
             casting = true;
+            castTimeFrame = Time.frameCount;
             bool hasHitNow = false;
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
 
-            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out _hit, transform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
+            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hitResult, transform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
             {
                 hasHitNow = CheckTags();
             }
-
             return hasHitNow;
         }
 
-        public RaycastHit? ManualCast(
-            Vector2 extents, 
-            CastVisualizer.CastDirection direction, 
-            float distance, 
-            LayerMask targetLayers, 
+        public RaycastHit ManualCast(
+            Vector2 extents,
+            CastDirection direction,
+            float distance,
+            LayerMask targetLayers,
             bool detectTriggers
         )
         {
@@ -57,18 +55,17 @@ namespace PhysCastVisualier
             this.GetTriggerInteraction(detectTriggers);
 
             EventCheck(Cast());
-            return hit;
+            return hitResult;
         }
 
-        protected void OnDrawGizmos()
+        protected override void OnDrawGizmos()
         {
             if (!visualize)
                 return;
 
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
-            DrawCube(castDirection * (maxDistance/2) + posWOffset, GetExtentSize(), transform.rotation, hasHit && casting ? hasHitColor : castColor);     
-            casting = false;
+            DrawCube(castDirection * (maxDistance / 2) + posWOffset, GetExtentSize(), transform.rotation, GetDebugColor());
         }
 
         private Vector3 GetExtentSize()
@@ -108,9 +105,10 @@ namespace PhysCastVisualier
         private void DrawCube(Vector3 center, Vector3 extent, Quaternion rotation, Color color)
         {
             Vector3[] points = new Vector3[8];
-            for (int i = 0; i < points.Length; i++) {
+            for (int i = 0; i < points.Length; i++)
+            {
                 points[i] = rotation * Vector3.Scale(extent, CubeVertexPoints[i]) + center;
-            }     
+            }
 
             Debug.DrawLine(points[0], points[1], color);
             Debug.DrawLine(points[0], points[2], color);
@@ -127,9 +125,9 @@ namespace PhysCastVisualier
             Debug.DrawLine(points[2], points[6], color);
 
             Debug.DrawLine(points[4], points[5], color);
-            Debug.DrawLine(points[4], points[6], color);   
+            Debug.DrawLine(points[4], points[6], color);
         }
     }
-   
+
 }
 

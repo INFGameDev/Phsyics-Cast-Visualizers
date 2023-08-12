@@ -15,11 +15,12 @@ namespace PhysCastVisualier
         protected override bool Cast()
         {
             casting = true;
+            castTimeFrame = Time.frameCount;
             bool hasHitNow = false;
             Vector3 castDirection = GetLocalCastDirection(direction);
             Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
 
-            if (Physics.SphereCast(posWOffset, radius, castDirection, out _hit, maxDistance, collidingLayers, GetTriggerInteraction() )) 
+            if (Physics.SphereCast(posWOffset, radius, castDirection, out hitResult, maxDistance, collidingLayers, GetTriggerInteraction() )) 
             {
                  hasHitNow = CheckTags();
             }
@@ -27,9 +28,9 @@ namespace PhysCastVisualier
             return hasHitNow;
         }
 
-        public RaycastHit? ManualCast(
+        public RaycastHit ManualCast(
             float radius, 
-            CastVisualizer.CastDirection direction, 
+            CastDirection direction, 
             float distance, 
             LayerMask targetLayers, 
             bool detectTriggers
@@ -42,7 +43,7 @@ namespace PhysCastVisualier
             this.GetTriggerInteraction(detectTriggers);
 
             EventCheck(Cast());
-            return hit;
+            return hitResult;
         }
 
         private Vector3 GetLineStartPos(CastDirection directionPosShift)
@@ -59,7 +60,7 @@ namespace PhysCastVisualier
         }
 
 
-        private void OnDrawGizmos()
+        protected override void OnDrawGizmos()
         {
             if (!visualize)
                 return;
@@ -67,7 +68,7 @@ namespace PhysCastVisualier
             vectorCastDirection = GetLocalCastDirection(direction);
             castOriginPointWithOffset = transform.position + vectorCastDirection * directionOriginOffset;
             castEndPointWithOffset = transform.position + vectorCastDirection * (directionOriginOffset + maxDistance);
-            Gizmos.color = hasHit && casting ? hasHitColor: castColor;
+            Gizmos.color = GetDebugColor();
             
             Gizmos.DrawWireSphere(castOriginPointWithOffset, radius); // origin sphere
 
@@ -107,7 +108,6 @@ namespace PhysCastVisualier
             // max distance sphere
             Gizmos.DrawWireSphere(castEndPointWithOffset, radius);
             Gizmos.color = default;
-            casting = false; 
         }
     }
 

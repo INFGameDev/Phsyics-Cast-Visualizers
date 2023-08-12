@@ -4,21 +4,29 @@ using UnityEngine;
 
 namespace PhysCastVisualier
 {
-    [DisallowMultipleComponent]
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Sphere Check")]
     public class SphereCheck : ShapeCheckVisualizer
     {
+        [BoxDivider("Sphere Check Properties")]
         [SerializeField] protected float radius = 1;
 
-        protected override bool Cast() => Physics.CheckSphere(CalculateCastPosition(radius), radius, collidingLayers, GetTriggerInteraction());
-        protected void OnDrawGizmos() 
+        protected override bool Cast()
+        {
+            castTimeFrame = Time.frameCount;
+            casting = true;
+            return Physics.CheckSphere(CalculateCastPosition(radius), radius, collidingLayers, GetTriggerInteraction());
+        }
+        protected override void OnDrawGizmos()
         {
             if (!visualize)
                 return;
 
-            // the forbidden disgusting nested ternary
-            Gizmos.color = Application.isPlaying ? (hasHit ? Color.red : Color.green) : Color.white; 
-            Gizmos.DrawWireSphere(transform.position, radius);  
+            Gizmos.color = GetDebugColor();
+            Gizmos.DrawWireMesh(castMesh,  CalculateCastPosition(radius), transform.rotation, Vector3.one * radius * 2);
+        }
+
+        void OnValidate() {
+            radius = radius.Clamp(0, Mathf.Infinity);
         }
     }
 }

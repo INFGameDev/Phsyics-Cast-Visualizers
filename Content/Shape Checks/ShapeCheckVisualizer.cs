@@ -6,41 +6,23 @@ using System;
 
 namespace PhysCastVisualier
 {
-    public abstract class ShapeCheckVisualizer : CastVisualizer
+    public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
     {
+        [BoxDivider("Shape Check Properties")]
         [SerializeField] protected bool hasDirection;
         [SerializeField] protected Mesh castMesh;
         [SerializeField] protected Vector3 offset;
-        [SerializeField] protected UnityEvent OnDetectionEnter;
-        [SerializeField] protected UnityEvent OnDetectionExit;
-        public event Action OnDetectionEnter_;
-        public event Action OnDetectionExit_;
 
-        protected override void AutoCast() 
-        {
-            bool hasHitNow = Cast();
-
-            if (hasHitNow != hasHit)
-            {
-                if (hasHitNow) {
-                    OnDetectionEnter?.Invoke();
-                    OnDetectionEnter_?.Invoke();
-                } else {
-                    OnDetectionExit?.Invoke();
-                    OnDetectionExit_?.Invoke();
-                }
-            }
-
-            hasHit = hasHitNow;
-        }
+        protected override void AutoCast() => EventCheck(Cast());
 
         protected abstract bool Cast();
-        // public override bool ManualCast()
-        // {
-        //     base.ManualCast();
-        //     hasHit = Cast();
-        //     return hasHit;
-        // }
+        protected abstract void OnDrawGizmos();
+
+        public bool ManualCast()
+        {
+            EventCheck(Cast());
+            return hasHit;
+        }
 
         protected Vector3 CalculateCastPosition(float directionBodySize)
         {
@@ -49,7 +31,42 @@ namespace PhysCastVisualier
             return relativePosition;
         }
         
-    }
+        protected override void EventCheck(bool hasHitNow)
+        {
+            if (hasHitNow != hasHit)
+            {
+                if (hasHitNow) {
+                    OnDetectionEnter?.Invoke(hasHitNow);
+                    InvokeOnDetectionEnter_(hasHitNow);
+                } else {
+                    OnDetectionExit?.Invoke(hasHitNow);
+                    InvokeOnDetectionExit_(hasHitNow);
+                }
+            }
+ 
+            hasHit = hasHitNow;  
+            hitResult = hasHitNow;
+        }
 
+        protected override void StateResultReset()
+        {
+            if (autoCast)
+            {
+                hasHit = false;
+                casting = false;
+                hitResult = default;
+            }
+            else // manually casted
+            {
+                // check if currently casting, if so don't reset the values and wait for the next frame
+                if (Time.frameCount != castTimeFrame)
+                {
+                    hasHit = false;
+                    casting = false;
+                    hitResult = default;
+                }
+            }
+        }
+    }
 }
 

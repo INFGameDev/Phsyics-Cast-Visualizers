@@ -3,14 +3,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using System;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using UnityEngine.Profiling;
 
 namespace PhysCastVisualier
 {
-    public abstract class CastVisualizer : MonoBehaviour 
+    public abstract class CastVisualizer<T> : MonoBehaviour
     {
         public enum CastDirection { Forward, Back, Right, Left, Up, Down }
         protected Vector3[] GlobalCastDirections = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left, Vector3.up, Vector3.down };
@@ -18,98 +17,70 @@ namespace PhysCastVisualier
         [BoxDivider("Visualizer Properties")]
 
         [SerializeField] protected bool visualize;
-
         [SerializeField] protected LayerMask collidingLayers;
+        [SerializeField, DisplayIf(nameof(hideCastDirectionField), true)] protected CastDirection direction;
         [SerializeField] protected bool detectTriggers;
-        [SerializeField] protected CastDirection direction;
         [SerializeField] protected bool autoCast = true;
         [SerializeField] protected Color castColor = Color.white;
         [SerializeField] protected Color hasHitColor = Color.red;
- 
-        [field: SerializeField, DisplayOnly] public bool hasHit {get; protected set;} = false;
 
-        protected Vector3 rotationOffset;
-        protected Vector3 relativePosition;
+        [SerializeField, Space(5)] protected UnityEvent<T> OnDetectionEnter;
+        [SerializeField, Space(5)] protected UnityEvent<T> OnDetectionExit;
+        public event Action<T> OnDetectionEnter_;
+        public event Action<T> OnDetectionExit_;
 
         /// <summary>
         /// raycast cast check (unreliable accuracy: used for visualization renders)
         /// </summary>
-        protected bool casting;
+        [field: SerializeField, DisplayOnly] protected bool casting;
+        [field: SerializeField, DisplayOnly] public bool hasHit { get; protected set; } = false;
+
+        protected Vector3 rotationOffset;
+        protected Vector3 relativePosition;
+        protected T hitResult = default;
+        protected int castTimeFrame;
+        [SerializeField, HideInInspector] protected bool hideCastDirectionField;
 
         public void Visualize(bool b) => visualize = b;
         protected QueryTriggerInteraction GetTriggerInteraction() => detectTriggers ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
-        protected QueryTriggerInteraction GetTriggerInteraction(bool doDetect) =>  doDetect ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
-        
-        protected abstract void AutoCast();        
-        protected virtual void Update() 
+        protected QueryTriggerInteraction GetTriggerInteraction(bool doDetect) => doDetect ? QueryTriggerInteraction.Collide : UnityEngine.QueryTriggerInteraction.Ignore;
+        protected abstract void AutoCast();
+
+        protected virtual void Update()
         {
-            if (autoCast) {
+            StateResultReset();
+            Profiler.BeginSample("Cast Visualizer");
+            if (autoCast)
+            {
                 AutoCast();
             }
-        
+            Profiler.EndSample();
         }
-    }
-    #region Attributes ====================================================================================================
-    public class DisplayOnlyAttribute : PropertyAttribute
-    {
-        public string boolField;
-        public DisplayOnlyAttribute(string boolVar = "") => this.boolField = boolVar;
-    }
 
-    #if UNITY_EDITOR
-        [CustomPropertyDrawer(typeof(DisplayOnlyAttribute))]
-        public class DisplayOnlyAttributeDrawer : PropertyDrawer
+        protected void InvokeOnDetectionEnter_(T value) => OnDetectionEnter_?.Invoke(value);
+        protected void InvokeOnDetectionExit_(T value) => OnDetectionExit_?.Invoke(value);
+        protected abstract void EventCheck(bool hasHitNow);
+        protected Color GetDebugColor() => hasHit ? hasHitColor : castColor;
+        public virtual void ToggleAutoCast(bool dasAuto) => autoCast = dasAuto;
+        public virtual T GetHit() => hitResult;
+
+        protected virtual void StateResultReset()
         {
-            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            if (autoCast)
             {
-                DisplayOnlyAttribute DOA = attribute as DisplayOnlyAttribute;
-                bool render = false;
-
-                if (DOA != null && DOA.boolField != string.Empty )
+                hasHit = false;
+            }
+            else // manually casted
+            {
+                // check if currently casting, if so don't reset the values and wait for the next frame
+                if (Time.frameCount != castTimeFrame)
                 {
-                    var baseProperty = property.serializedObject.FindProperty(DOA.boolField);
-
-                    if (baseProperty == null){
-                        int basePath = property.propertyPath.LastIndexOf('.');
-                        string fullPath = property.propertyPath.Substring(0, basePath+1) + DOA.boolField;
-
-                        // Debug.Log(fullPath);
-                        render = !property.serializedObject.FindProperty(fullPath).boolValue;
-                        // Debug.Log(render);
-                    } else {
-                        render = !baseProperty.boolValue;
-                    }
+                    casting = false;
+                    hasHit = false;
                 }
-                    
-
-                GUI.enabled = render;
-                EditorGUI.PropertyField(position, property, label, true);
-                GUI.enabled = true;
             }
-        }
-    #endif
-
-	public class TagsSelectionAttribute : PropertyAttribute{}
-
-    #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(TagsSelectionAttribute))]
-    public class TagsSelectionAttributeDrawer : PropertyDrawer
-    {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            if (property.propertyType != SerializedPropertyType.String)
-            {
-                Debug.LogError($"Tags Selection Variable ({property.name}) in ({property.serializedObject.targetObject}) is expected to be a string");
-                EditorGUI.PropertyField(position, property, label);
-                return;
-            }
-
-            property.stringValue = EditorGUI.TagField(position, label, property.stringValue);
         }
     }
-    #endif
-
-    #endregion  Attributes ====================================================================================================
 }
 
 
