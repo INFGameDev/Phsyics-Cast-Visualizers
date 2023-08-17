@@ -1,4 +1,19 @@
-// @INF
+/* 
+Copyright (C) 2023 INF
+
+This code is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/
+*/
 
 using System.Collections;
 using System.Collections.Generic;
@@ -13,28 +28,18 @@ namespace PhysCastVisualier
         {
             casting = true;
             castTimeFrame = Time.frameCount;
-            bool hasHitNow = false;
-            
-            Vector3 castDirection = GetLocalCastDirection(direction);
-            Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
+            CalculateDirAndPos();
 
             if (Physics.Raycast(posWOffset, castDirection, out hitResult, maxDistance, collidingLayers, GetTriggerInteraction()))
-                hasHitNow = CheckTags();
+                return CheckTags();
 
-            return hasHitNow;
+            return false;
         }
 
-        public RaycastHit ManualCast(
-            CastDirection direction, 
-            float distance, 
-            LayerMask targetLayers, 
-            bool detectTriggers
-        )
+        public RaycastHit ManualCast( CastDirection newDireaction, float newDistance = -1 )
         {
-            this.direction = direction;
-            this.maxDistance = distance;
-            this.collidingLayers = targetLayers;
-            this.GetTriggerInteraction(detectTriggers);
+            this.direction = newDireaction;
+            this.maxDistance = newDistance == -1 ? this.maxDistance : newDistance;
             EventCheck(Cast());
             return hitResult;
         }
@@ -44,11 +49,11 @@ namespace PhysCastVisualier
             if (!visualize)
                 return;
 
-            Vector3 castDirection = GetLocalCastDirection(direction);
-            Vector3 posWOffset_RayStart = transform.position + castDirection * directionOriginOffset;
-            Vector3 vectorDir = castDirection * maxDistance;
+            if (!casting)
+                CalculateDirAndPos();
 
-            Debug.DrawRay(posWOffset_RayStart, vectorDir, GetDebugColor());
+            Vector3 vectorDir = castDirection * maxDistance;
+            Debug.DrawRay(posWOffset, vectorDir, GetDebugColor());
         }
     }
 }

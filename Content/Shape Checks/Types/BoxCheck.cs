@@ -1,3 +1,20 @@
+/* 
+Copyright (C) 2023 INF
+
+This code is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,52 +22,33 @@ using System;
 
 namespace PhysCastVisualier
 {
-    // [DisallowMultipleComponent]
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Box Check")]
     public class BoxCheck : ShapeCheckVisualizer
     {
         [BoxDivider("Box Check Properties")]
-        [SerializeField] protected Vector3 size = Vector3.one;
-        [SerializeField] private bool formFromScale;
-        private float directionAxisSize = 0;
-
-        protected virtual void Start()
-        {
-            if (formFromScale)
-                size = transform.localScale;
-        }
-
-        private void SetDirectionAxisSize()
-        {
-            switch (direction)
-            {
-                case CastDirection.Left:
-                case CastDirection.Right:
-                    directionAxisSize = size.x;
-                    break;
-                case CastDirection.Up:
-                case CastDirection.Down:
-                    directionAxisSize = size.y;
-                    break;
-                case CastDirection.Forward:
-                case CastDirection.Back:
-                    directionAxisSize = size.z;
-                    break;
-            }
-        }
+        [SerializeField, ShowChildrenOnly] private CBoxSize boxSize;
+        [SerializeField, ShowChildrenOnly] private CCastOffset castOffset;
 
         protected override bool Cast()
         {
             casting = true;
             castTimeFrame = Time.frameCount;
-            SetDirectionAxisSize();
-            return Physics.CheckBox(CalculateCastPosition(directionAxisSize / 2), size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
+            boxSize.SetDirectionAxisSize(direction);
+            castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+            return Physics.CheckBox(castOffset.relativePosition, boxSize.size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
         }
 
+        public bool ManualCast(Vector2 newSize)
+        {
+            boxSize.size = newSize;
+            EventCheck(Cast());
+            return hitResult;
+        }
+
+        public void SetSize(Vector3 size) => this.boxSize.size = size;
+
         void OnValidate() {
-            size.x = size.x.Clamp(0, Mathf.Infinity);
-            size.y = size.y.Clamp(0, Mathf.Infinity);
-            size.z = size.z.Clamp(0, Mathf.Infinity);
+            boxSize.PositiveInfinityClamp();
         }
 
         protected override void OnDrawGizmos()
@@ -58,11 +56,14 @@ namespace PhysCastVisualier
             if (!visualize)
                 return;
 
-            if (!Application.isPlaying)
-                SetDirectionAxisSize();
-
+            if (!casting)
+            {
+                boxSize.SetDirectionAxisSize(direction);
+                castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+            }
+                
             Gizmos.color = GetDebugColor();
-            Gizmos.DrawWireMesh(castMesh, CalculateCastPosition(directionAxisSize / 2), transform.rotation, size);
+            Gizmos.DrawWireMesh(castMesh, castOffset.relativePosition, transform.rotation, boxSize.size);
         }
     }
 }

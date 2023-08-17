@@ -1,3 +1,20 @@
+/* 
+Copyright (C) 2023 INF
+
+This code is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +26,7 @@ namespace PhysCastVisualier
     public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
     {
         [BoxDivider("Shape Check Properties")]
-        [SerializeField] protected bool hasDirection;
         [SerializeField] protected Mesh castMesh;
-        [SerializeField] protected Vector3 offset;
 
         protected override void AutoCast() => EventCheck(Cast());
 
@@ -22,13 +37,6 @@ namespace PhysCastVisualier
         {
             EventCheck(Cast());
             return hasHit;
-        }
-
-        protected Vector3 CalculateCastPosition(float directionBodySize)
-        {
-            rotationOffset = transform.rotation * (offset + GlobalCastDirections[(int)direction] * (directionBodySize) * Convert.ToInt32(hasDirection));
-            relativePosition = transform.position + rotationOffset;
-            return relativePosition;
         }
         
         protected override void EventCheck(bool hasHitNow)
@@ -52,7 +60,7 @@ namespace PhysCastVisualier
         {
             if (autoCast)
             {
-                hasHit = false;
+                // hasHit = false;
                 casting = false;
                 hitResult = default;
             }

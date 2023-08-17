@@ -6,7 +6,7 @@ MonoImporter:
   defaultReferences:
   - castMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   executionOrder: 0
-  icon: {instanceID: 0}
+  icon: {fileID: 2800000, guid: 1c657e218a257b549a1c482ca4b3ab78, type: 3}
   userData: 
   assetBundleName: 
   assetBundleVariant: 

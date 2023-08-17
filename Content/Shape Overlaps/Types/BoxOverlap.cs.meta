@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 9048e645a5d23c0479b8b0ad7632abc3
+guid: 1b708d83dd9af0446b650a472aa49a03
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
   - castMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   executionOrder: 0
-  icon: {fileID: 2800000, guid: d68ff56d0d9a5e94dbcb4919ad71115c, type: 3}
+  icon: {fileID: 2800000, guid: 5cb395c6b21ae6a48a4d901523307d10, type: 3}
   userData: 
   assetBundleName: 
   assetBundleVariant: 

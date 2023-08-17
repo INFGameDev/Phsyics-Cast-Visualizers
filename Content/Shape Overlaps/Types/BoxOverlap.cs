@@ -23,39 +23,42 @@ using UnityEngine.Profiling;
 
 namespace PhysCastVisualier
 {
-    [AddComponentMenu("Physics Cast Visualizer/Shape Overlaps/Sphere Overlap")]
-    public class SphereOverlap : ShapeOverlapVisualizer
+    [AddComponentMenu("Physics Cast Visualizer/Shape Overlaps/Box Overlap")]
+    public class BoxOverlap : ShapeOverlapVisualizer
     {
-        [BoxDivider("Sphere Overlap Properties")]
-        [SerializeField] protected float radius = 1;
+        [BoxDivider("Box Overlap Properties")]
+        [SerializeField, ShowChildrenOnly] private CBoxSize boxSize;
+        private float directionAxisSize = 0;
 
-        public void SetRadius(float radius) => this.radius = radius;
+        public void SetSize(Vector3 size) => boxSize.size = size;
         protected override bool Cast()
         {
             casting = true;
             castTimeFrame = Time.frameCount;
             hitResult = default;
 
-            castOffset.CalculateCastPosition(radius, direction, transform);
-            initialHitResults = Physics.OverlapSphere(castOffset.relativePosition, radius, collidingLayers, GetTriggerInteraction());
+            boxSize.SetDirectionAxisSize(direction);
+            castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+            initialHitResults = Physics.OverlapBox(castOffset.relativePosition, boxSize.size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
 
             if (initialHitResults.Length > 0)
                 return CheckTags();
-                
+
             return false;
         }
 
-        public Collider[] ManualCast(float newRadius)
+        public Collider[] ManualCast(Vector3 newSize)
         {
-            radius = newRadius;
+            boxSize.size = newSize;
             EventCheck(Cast());
             return hitResult;
         }
 
-        protected override void OnValidate()
-        {
+        protected override void OnValidate() {
             base.OnValidate();
-            radius = radius.Clamp(0, Mathf.Infinity);
+
+            if (boxSize != null)
+                boxSize.PositiveInfinityClamp();
         }
 
         protected override void OnDrawGizmos()
@@ -64,10 +67,14 @@ namespace PhysCastVisualier
                 return;
 
             if (!casting)
-                castOffset.CalculateCastPosition(radius, direction, transform);
+            {
+                boxSize.SetDirectionAxisSize(direction);
+                castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+            }
 
             Gizmos.color = GetDebugColor();
-            Gizmos.DrawWireMesh(castMesh,  castOffset.relativePosition, transform.rotation, Vector3.one * radius * 2);
+            Gizmos.DrawWireMesh(castMesh, castOffset.relativePosition, transform.rotation, boxSize.size);
         }
-    }   
+    }
 }
+

@@ -1,3 +1,20 @@
+/* 
+Copyright (C) 2023 INF
+
+This code is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,28 +27,28 @@ namespace PhysCastVisualier
     {
         [BoxDivider("Cast Box Properties")]
         [VectorConstraint(nameof(direction)), SerializeField] private Vector3 extentSize = Vector3.one / 2;
+
         protected override bool Cast()
         {
             casting = true;
             castTimeFrame = Time.frameCount;
-            bool hasHitNow = false;
-            Vector3 castDirection = GetLocalCastDirection(direction);
-            Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
+            CalculateDirAndPos();
 
             if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hitResult, transform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
-            {
-                hasHitNow = CheckTags();
-            }
-            return hasHitNow;
+                return CheckTags();
+
+            return false;
         }
 
-        public RaycastHit ManualCast(
-            Vector2 extents,
-            CastDirection direction,
-            float distance,
-            LayerMask targetLayers,
-            bool detectTriggers
-        )
+        public RaycastHit ManualCast( Vector2 extents, float newDistance = -1 )
+        {
+            SetExtentSize(extents);
+            this.maxDistance = newDistance == -1 ? this.maxDistance : newDistance;
+            EventCheck(Cast());
+            return hitResult;
+        }
+
+        public void SetExtentSize(Vector2 extents)
         {
             switch (direction)
             {
@@ -48,23 +65,18 @@ namespace PhysCastVisualier
                     extentSize = new Vector3(extents.x, 0, extents.y);
                     break;
             }
-
-            this.direction = direction;
-            this.maxDistance = distance;
-            this.collidingLayers = targetLayers;
-            this.GetTriggerInteraction(detectTriggers);
-
-            EventCheck(Cast());
-            return hitResult;
         }
+
+        #region Visual Debug =============================================================================================================
 
         protected override void OnDrawGizmos()
         {
             if (!visualize)
                 return;
 
-            Vector3 castDirection = GetLocalCastDirection(direction);
-            Vector3 posWOffset = transform.position + castDirection * directionOriginOffset;
+            if (!casting)
+                CalculateDirAndPos();
+
             DrawCube(castDirection * (maxDistance / 2) + posWOffset, GetExtentSize(), transform.rotation, GetDebugColor());
         }
 
@@ -127,6 +139,7 @@ namespace PhysCastVisualier
             Debug.DrawLine(points[4], points[5], color);
             Debug.DrawLine(points[4], points[6], color);
         }
+        #endregion Visual Debug =============================================================================================================
     }
 
 }
