@@ -17,7 +17,7 @@ namespace PhysCastVisualier
     public abstract class ShapeCheckVisualizer : CastVisualizer<bool>
     {
         [BoxDivider("Shape Check Properties")]
-        [SerializeField] protected Mesh castMesh;
+        [SerializeField, DisplayOnly] protected Mesh castMesh;
 
         protected override void AutoCast() => EventCheck(Cast());
 

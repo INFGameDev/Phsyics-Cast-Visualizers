@@ -15,7 +15,7 @@ namespace PhysCastVisualier
     [AddComponentMenu("Physics Cast Visualizer/Shape Checks/Capsule Check")]
     public class CapsuleCheck : ShapeCheckVisualizer
     {
-        [BoxDivider("Cast Line Properties")]
+        [BoxDivider("Capsule Check Properties")]
         [SerializeField] private float radius;
         [SerializeField, AlwaysExpanded] private CEndPointBasedCast properties;
 

@@ -16,7 +16,7 @@ namespace PhysCastVisualier
     public abstract class ShapeOverlapVisualizer : CastVisualizer<Collider[]>
     {
         [BoxDivider("Shape Overlap Properties")]
-        [SerializeField] protected Mesh castMesh;
+        [SerializeField, DisplayOnly] protected Mesh castMesh;
         [SerializeField, ShowChildrenOnly] protected CCastOffset castOffset;
         [SerializeField, DisplayOnly] protected int hitCount;
         [SerializeField, TagsSelection, Space(5)] protected string[] targetTags;
