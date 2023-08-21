@@ -17,8 +17,7 @@ namespace PhysCastVisualier
     public abstract class ShapeCastVisualizer : CastVisualizer<RaycastHit>
     {
         [BoxDivider("Shape Cast Properties")]
-        [SerializeField] private bool selfCast = true;
-        [SerializeField, DisplayIf(nameof(selfCast), true)] private Transform referenceTransform;
+
         [SerializeField, DisplayIf(nameof(hideMaxDistanceField), true)] protected float maxDistance;
         [SerializeField, TagsSelection, Space(5)] protected string[] targetTags;
         [SerializeField, DisplayIf(nameof(hideDirectionOriginOffsetField), true),Space(5)] protected float directionOriginOffset;
@@ -29,7 +28,7 @@ namespace PhysCastVisualier
         [SerializeField, HideInInspector] protected bool hideDirectionOriginOffsetField;
         protected Vector3 castDirection;
         protected Vector3 posWOffset;
-        protected Transform castTransform => selfCast ? transform : referenceTransform;
+
 
 
         protected virtual void OnValidate() {

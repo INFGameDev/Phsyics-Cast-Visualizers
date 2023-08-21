@@ -27,7 +27,7 @@ namespace PhysCastVisualier
             castTimeFrame = Time.frameCount;
             hitResult = default;
 
-            castOffset.CalculateCastPosition(radius, direction, transform);
+            castOffset.CalculateCastPosition(radius, direction, castTransform);
 
             if (overlapCastType == OverlapCastType.Normal){
                 initialHitResults = Physics.OverlapSphere(castOffset.relativePosition, radius, collidingLayers, GetTriggerInteraction());
@@ -64,10 +64,10 @@ namespace PhysCastVisualier
                 return;
 
             if (!casting)
-                castOffset.CalculateCastPosition(radius, direction, transform);
+                castOffset.CalculateCastPosition(radius, direction, castTransform);
 
             Gizmos.color = GetDebugColor();
-            Gizmos.DrawWireMesh(castMesh,  castOffset.relativePosition, transform.rotation, Vector3.one * radius * 2);
+            Gizmos.DrawWireMesh(castMesh,  castOffset.relativePosition, castTransform.rotation, Vector3.one * radius * 2);
         }
     }   
 }

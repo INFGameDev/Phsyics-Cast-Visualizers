@@ -39,7 +39,8 @@ namespace PhysCastVisualier
         public void SetSize(Vector3 size) => this.boxSize.size = size;
 
         void OnValidate() {
-            boxSize.PositiveInfinityClamp();
+            if (boxSize != null)
+                boxSize.PositiveInfinityClamp();
         }
 
         protected override void OnDrawGizmos()

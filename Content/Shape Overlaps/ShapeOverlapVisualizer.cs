@@ -22,6 +22,7 @@ namespace PhysCastVisualier
         }
 
         [BoxDivider("Shape Overlap Properties")]
+
         [SerializeField, DisplayOnly] protected Mesh castMesh;
         [SerializeField] protected OverlapCastType overlapCastType;
         [SerializeField, DisplayIf(nameof(overlapCastType), false, OverlapCastType.NonAlloc)] protected int allocSize = 1;

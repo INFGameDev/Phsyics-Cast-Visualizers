@@ -64,6 +64,7 @@ namespace PhysCastVisualier
             base.OnValidate();
             radius = radius.Clamp(0, Mathf.Infinity);
             hideCastDirectionField = true;
+            hideSelfCastField = true;
         }
     }
 

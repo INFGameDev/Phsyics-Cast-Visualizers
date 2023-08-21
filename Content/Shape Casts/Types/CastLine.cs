@@ -35,6 +35,7 @@ namespace PhysCastVisualier
             hideCastDirectionField = true;
             hideMaxDistanceField = true;
             hideDirectionOriginOffsetField = true;
+            hideSelfCastField = true;
         }
 
         protected override void OnDrawGizmos()

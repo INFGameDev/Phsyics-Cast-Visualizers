@@ -23,6 +23,10 @@ namespace PhysCastVisualier
 
         [BoxDivider("Visualizer Properties")]
         [SerializeField] protected bool visualize;
+        [SerializeField, DisplayIf(nameof(hideSelfCastField), true)] private bool selfCast = true;
+        [SerializeField, HideInInspector] protected bool hideSelfCastField;
+        [SerializeField, DisplayIf(nameof(selfCast), true)] private Transform referenceTransform;
+        protected Transform castTransform => selfCast ? transform : referenceTransform;
         [SerializeField] protected LayerMask collidingLayers;
         [SerializeField, DisplayIf(nameof(hideCastDirectionField), true)] protected CastDirection direction;
         [SerializeField] protected bool detectTriggers;

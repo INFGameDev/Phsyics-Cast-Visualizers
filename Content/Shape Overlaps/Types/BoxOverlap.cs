@@ -28,16 +28,16 @@ namespace PhysCastVisualier
             hitResult = default;
 
             boxSize.SetDirectionAxisSize(direction);
-            castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+            castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, castTransform);
 
             if (overlapCastType == OverlapCastType.Normal){
-                initialHitResults = Physics.OverlapBox(castOffset.relativePosition, boxSize.size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
+                initialHitResults = Physics.OverlapBox(castOffset.relativePosition, boxSize.size / 2, castTransform.rotation, collidingLayers, GetTriggerInteraction());
 
                 if (initialHitResults.Length > 0)
                     return CheckTags();
             } else {
                 initialHitResults = new Collider[allocSize];
-                Physics.OverlapBoxNonAlloc(castOffset.relativePosition, boxSize.size / 2, initialHitResults, transform.rotation, collidingLayers, GetTriggerInteraction());
+                Physics.OverlapBoxNonAlloc(castOffset.relativePosition, boxSize.size / 2, initialHitResults, castTransform.rotation, collidingLayers, GetTriggerInteraction());
 
                 if (initialHitResults[0] != null)
                     return CheckTags();
@@ -68,11 +68,11 @@ namespace PhysCastVisualier
             if (!casting)
             {
                 boxSize.SetDirectionAxisSize(direction);
-                castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
+                castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, castTransform);
             }
 
             Gizmos.color = GetDebugColor();
-            Gizmos.DrawWireMesh(castMesh, castOffset.relativePosition, transform.rotation, boxSize.size);
+            Gizmos.DrawWireMesh(castMesh, castOffset.relativePosition, castTransform.rotation, boxSize.size);
         }
     }
 }
