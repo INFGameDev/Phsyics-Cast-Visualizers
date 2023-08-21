@@ -25,7 +25,7 @@ namespace PhysCastVisualier
             castTimeFrame = Time.frameCount;
             CalculateDirAndPos();
 
-            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hitResult, transform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
+            if (Physics.BoxCast(posWOffset, extentSize, castDirection, out hitResult, castTransform.rotation, maxDistance, collidingLayers, GetTriggerInteraction()))
                 return CheckTags();
 
             return false;
@@ -68,7 +68,7 @@ namespace PhysCastVisualier
             if (!casting)
                 CalculateDirAndPos();
 
-            DrawCube(castDirection * (maxDistance / 2) + posWOffset, GetExtentSize(), transform.rotation, GetDebugColor());
+            DrawCube(castDirection * (maxDistance / 2) + posWOffset, GetExtentSize(), castTransform.rotation, GetDebugColor());
         }
 
         private Vector3 GetExtentSize()

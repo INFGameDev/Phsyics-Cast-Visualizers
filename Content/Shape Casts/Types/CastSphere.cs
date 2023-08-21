@@ -58,7 +58,7 @@ namespace PhysCastVisualier
             if (!casting)
                 CalculateDirAndPos();
 
-            castEndPointWithOffset = transform.position + castDirection * (directionOriginOffset + maxDistance);
+            castEndPointWithOffset = castTransform.position + castDirection * (directionOriginOffset + maxDistance);
 
             Gizmos.color = GetDebugColor();
             Gizmos.DrawWireSphere(posWOffset, radius); // origin sphere
