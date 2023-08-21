@@ -143,6 +143,7 @@ namespace PhysCastVisualier
                         // loop through all target tags
                         for (int j = 0; j < targetTags.Length; j++)
                         {
+                            // compare the object's tag with each tag to see if we have tagged hit
                             if (!String.IsNullOrEmpty(targetTags[j]) && initialHitResults[i].CompareTag(targetTags[j]))
                             {
                                 collidersWithTargetTags.Add(initialHitResults[i]);
@@ -151,16 +152,14 @@ namespace PhysCastVisualier
                             }
                         }
                     }
-                    else // if there isn't, just validate all hits as accepted
+                    else // if there isn't
                     {
-
-                        if (initialHitResults[i] != null)
-                            collidersWithTargetTags.Add(initialHitResults[i]);
-
-
-                        collidersWithTargetTags.AddRange(initialHitResults);
-                        taggedHitFound = true;
-                        break;
+                        // check first if the element is null since we are also dealing with non-alloc raycasts
+                        // there maybe elements in the hits array that doesn't have a collider hit
+                        if (initialHitResults[i] != null) {
+                             collidersWithTargetTags.Add(initialHitResults[i]);
+                             taggedHitFound = true;
+                        }
                     }
                 }
             }
