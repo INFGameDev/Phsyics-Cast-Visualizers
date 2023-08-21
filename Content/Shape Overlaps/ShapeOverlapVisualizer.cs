@@ -15,18 +15,30 @@ namespace PhysCastVisualier
 {
     public abstract class ShapeOverlapVisualizer : CastVisualizer<Collider[]>
     {
+        protected enum OverlapCastType
+        {
+            Normal,
+            NonAlloc,
+        }
+
         [BoxDivider("Shape Overlap Properties")]
         [SerializeField, DisplayOnly] protected Mesh castMesh;
+        [SerializeField] protected OverlapCastType overlapCastType;
+        [SerializeField, DisplayIf(nameof(overlapCastType), false, OverlapCastType.NonAlloc)] protected int allocSize = 1;
         [SerializeField, ShowChildrenOnly] protected CCastOffset castOffset;
         [SerializeField, DisplayOnly] protected int hitCount;
         [SerializeField, TagsSelection, Space(5)] protected string[] targetTags;
         [SerializeField, TextArea(10, 10)] private string hitsConsole;
         protected Collider[] initialHitResults;
+        protected Vector3 rotationOffset;
+        protected Vector3 relativePosition;
+
+
+
+
         protected override void AutoCast() => EventCheck(Cast());
         protected abstract bool Cast();
         protected abstract void OnDrawGizmos();
-        protected Vector3 rotationOffset;
-        protected Vector3 relativePosition;
 
         public Collider[] ManualCast()
         {
@@ -122,7 +134,7 @@ namespace PhysCastVisualier
             // check if there is any hits
             if (initialHitResults.Length > 0)
             {
-                // loop through all initial jits
+                // loop through all initial hits
                 for (int i = 0; i < initialHitResults.Length; i++)
                 {
                     // check if there is any set target tags
@@ -135,11 +147,17 @@ namespace PhysCastVisualier
                             {
                                 collidersWithTargetTags.Add(initialHitResults[i]);
                                 taggedHitFound = true;
+                                break;
                             }
                         }
                     }
                     else // if there isn't, just validate all hits as accepted
                     {
+
+                        if (initialHitResults[i] != null)
+                            collidersWithTargetTags.Add(initialHitResults[i]);
+
+
                         collidersWithTargetTags.AddRange(initialHitResults);
                         taggedHitFound = true;
                         break;
@@ -157,11 +175,13 @@ namespace PhysCastVisualier
         {
             if (!Application.isPlaying)
                 hitsConsole = String.Empty;
+
+            allocSize = (int)Mathf.Clamp(allocSize, 1, Mathf.Infinity);
         }
 
         protected override void EventCheck(bool hasHitNow)
         {
-            int hitLength = hitResult != null ? hitResult.Length : 0;
+            int hitLength = hitResult != null && hasHitNow ? hitResult.Length : 0;
 
             if (hitLength != hitCount) {
                 if (hitLength > hitCount) 
@@ -190,7 +210,6 @@ namespace PhysCastVisualier
             }
 
             hitCount = hitLength;
-
         }
 
         protected override void StateResultReset()

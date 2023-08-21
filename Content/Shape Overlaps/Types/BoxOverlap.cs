@@ -29,10 +29,19 @@ namespace PhysCastVisualier
 
             boxSize.SetDirectionAxisSize(direction);
             castOffset.CalculateCastPosition(boxSize.directionAxisSize / 2, direction, transform);
-            initialHitResults = Physics.OverlapBox(castOffset.relativePosition, boxSize.size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
 
-            if (initialHitResults.Length > 0)
-                return CheckTags();
+            if (overlapCastType == OverlapCastType.Normal){
+                initialHitResults = Physics.OverlapBox(castOffset.relativePosition, boxSize.size / 2, transform.rotation, collidingLayers, GetTriggerInteraction());
+
+                if (initialHitResults.Length > 0)
+                    return CheckTags();
+            } else {
+                initialHitResults = new Collider[allocSize];
+                Physics.OverlapBoxNonAlloc(castOffset.relativePosition, boxSize.size / 2, initialHitResults, transform.rotation, collidingLayers, GetTriggerInteraction());
+
+                if (initialHitResults[0] != null)
+                    return CheckTags();
+            }
 
             return false;
         }

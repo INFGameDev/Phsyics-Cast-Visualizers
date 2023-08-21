@@ -27,10 +27,18 @@ namespace PhysCastVisualier
             castTimeFrame = Time.frameCount;
             hitResult = default;
 
-           initialHitResults = Physics.OverlapCapsule(properties.startPoint, properties.endPoint, radius, collidingLayers, GetTriggerInteraction());
+            if (overlapCastType == OverlapCastType.Normal){
+                initialHitResults = Physics.OverlapCapsule(properties.startPoint, properties.endPoint, radius, collidingLayers, GetTriggerInteraction());
 
-            if (initialHitResults.Length > 0)
-                return CheckTags();
+                if (initialHitResults.Length > 0)
+                    return CheckTags();
+            } else {
+                initialHitResults = new Collider[allocSize];
+                Physics.OverlapCapsuleNonAlloc(properties.startPoint, properties.endPoint, radius, initialHitResults, collidingLayers, GetTriggerInteraction());
+
+                if (initialHitResults[0] != null)
+                    return CheckTags();
+            }
 
             return false;
         }
