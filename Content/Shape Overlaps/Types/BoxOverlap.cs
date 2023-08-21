@@ -19,7 +19,6 @@ namespace PhysCastVisualier
     {
         [BoxDivider("Box Overlap Properties")]
         [SerializeField, ShowChildrenOnly] private CBoxSize boxSize;
-        private float directionAxisSize = 0;
 
         public void SetSize(Vector3 size) => boxSize.size = size;
         protected override bool Cast()
