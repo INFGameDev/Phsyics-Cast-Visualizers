@@ -8,21 +8,25 @@ using System;
 using UnityEditor;
 #endif
 
-/// <summary>
-/// makes a fold-out always expanded
-/// </summary>
-public class AlwaysExpandedAttribute : PropertyAttribute {}
-
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(AlwaysExpandedAttribute))]
-public class AlwaysExpandedAttributeDrawer : PropertyDrawer
+namespace INFAttributes
 {
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => EditorGUI.GetPropertyHeight(property, label, true);
+    /// <summary>
+    /// makes a fold-out always expanded
+    /// </summary>
+    public class AlwaysExpandedAttribute : PropertyAttribute {}
 
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    #if UNITY_EDITOR
+    [CustomPropertyDrawer(typeof(AlwaysExpandedAttribute))]
+    public class AlwaysExpandedAttributeDrawer : PropertyDrawer
     {
-        EditorGUI.PropertyField(position, property, label, true);
-        property.isExpanded = true;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => EditorGUI.GetPropertyHeight(property, label, true);
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.PropertyField(position, property, label, true);
+            property.isExpanded = true;
+        }
     }
+    #endif
 }
-#endif
+

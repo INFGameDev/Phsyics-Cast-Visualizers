@@ -7,22 +7,25 @@ using UnityEngine;
     using UnityEditor;
 #endif
 
-public class TagsSelectionAttribute : PropertyAttribute { }
+namespace INFAttributes
+{
+    public class TagsSelectionAttribute : PropertyAttribute { }
 
-#if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(TagsSelectionAttribute))]
-    public class TagsSelectionAttributeDrawer : PropertyDrawer
-    {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    #if UNITY_EDITOR
+        [CustomPropertyDrawer(typeof(TagsSelectionAttribute))]
+        public class TagsSelectionAttributeDrawer : PropertyDrawer
         {
-            if (property.propertyType != SerializedPropertyType.String)
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
             {
-                Debug.LogError($"Tags Selection Variable ({property.name}) in ({property.serializedObject.targetObject}) is expected to be a string");
-                EditorGUI.PropertyField(position, property, label);
-                return;
-            }
+                if (property.propertyType != SerializedPropertyType.String)
+                {
+                    Debug.LogError($"Tags Selection Variable ({property.name}) in ({property.serializedObject.targetObject}) is expected to be a string");
+                    EditorGUI.PropertyField(position, property, label);
+                    return;
+                }
 
-            property.stringValue = EditorGUI.TagField(position, label, property.stringValue);
+                property.stringValue = EditorGUI.TagField(position, label, property.stringValue);
+            }
         }
-    }
-#endif
+    #endif
+}

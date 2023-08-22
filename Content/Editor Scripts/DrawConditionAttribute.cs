@@ -8,56 +8,57 @@ using System;
 using UnityEditor;
 #endif
 
-public class DrawConditionAttribute : PropertyAttribute
+namespace INFAttributes
 {
-    public string fieldEnabler;
-    public bool inverseCheck = false;
-    public Enum[] enumConstantsCompare;
-
-    /// <summary>
-    /// [ Allowed field types ]
-    /// Unity Object fields -> checks if null or not
-    /// Boolean -> if it's true or not
-    /// </summary>
-    /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
-    public DrawConditionAttribute(string fieldEnabler) => this.fieldEnabler = fieldEnabler;
-
-    /// <summary>
-    /// [ Allowed field types ]
-    /// Unity Object fields -> checks if null or not
-    /// Boolean -> if it's true or not
-    /// </summary>
-    /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
-    /// <param name="inverseCheck">flips the condition</param>
-    public DrawConditionAttribute(string fieldEnabler, bool inverseCheck)
+    public class DrawConditionAttribute : PropertyAttribute
     {
-        this.inverseCheck = inverseCheck;
-        this.fieldEnabler = fieldEnabler;
-    }
+        public string fieldEnabler;
+        public bool inverseCheck = false;
+        public Enum[] enumConstantsCompare;
 
-    /// <summary>
-    /// [ Allowed field types ]
-    /// Enum -> checks if this enum field variable matches the enum constants being compared to it
-    /// </summary>
-    /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
-    /// <param name="inverseCheck">flips the condition</param>
-    /// <param name="enumConstantsToCompare">one or multiple enum constants to compare with the enum field variable</param>
-    public DrawConditionAttribute(string isEnabledBoolCheckField, bool inverseCheck = false, params object[] enumConstantsToCompare)
-    {
-        this.fieldEnabler = isEnabledBoolCheckField;
-        this.enumConstantsCompare = new Enum[enumConstantsToCompare.Length];
-        this.inverseCheck = inverseCheck;
+        /// <summary>
+        /// [ Allowed field types ]
+        /// Unity Object fields -> checks if null or not
+        /// Boolean -> if it's true or not
+        /// </summary>
+        /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
+        public DrawConditionAttribute(string fieldEnabler) => this.fieldEnabler = fieldEnabler;
 
-        for (int i = 0; i < enumConstantsToCompare.Length; i++) {
-            enumConstantsCompare[i] = (Enum)enumConstantsToCompare[i];
+        /// <summary>
+        /// [ Allowed field types ]
+        /// Unity Object fields -> checks if null or not
+        /// Boolean -> if it's true or not
+        /// </summary>
+        /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
+        /// <param name="inverseCheck">flips the condition</param>
+        public DrawConditionAttribute(string fieldEnabler, bool inverseCheck)
+        {
+            this.inverseCheck = inverseCheck;
+            this.fieldEnabler = fieldEnabler;
         }
-    }
-    
-    public DrawConditionAttribute() { }
-}
 
-namespace INFAttributesExtensionMethods
-{
+        /// <summary>
+        /// [ Allowed field types ]
+        /// Enum -> checks if this enum field variable matches the enum constants being compared to it
+        /// </summary>
+        /// <param name="fieldEnabler">a SERIALIZED field (UnityObject or Boolean) that is checked to determine if the field state is gonna be readonly or not </param>
+        /// <param name="inverseCheck">flips the condition</param>
+        /// <param name="enumConstantsToCompare">one or multiple enum constants to compare with the enum field variable</param>
+        public DrawConditionAttribute(string isEnabledBoolCheckField, bool inverseCheck = false, params object[] enumConstantsToCompare)
+        {
+            this.fieldEnabler = isEnabledBoolCheckField;
+            this.enumConstantsCompare = new Enum[enumConstantsToCompare.Length];
+            this.inverseCheck = inverseCheck;
+
+            for (int i = 0; i < enumConstantsToCompare.Length; i++) {
+                enumConstantsCompare[i] = (Enum)enumConstantsToCompare[i];
+            }
+        }
+        
+        public DrawConditionAttribute() { }
+    }
+
+    #if UNITY_EDITOR
     public static class DrawConditionAttributeHelper
     {
         public static bool GetDrawConditionResult(this DrawConditionAttribute attribute, SerializedProperty fieldProperty)
@@ -108,6 +109,5 @@ namespace INFAttributesExtensionMethods
             return enableField;
         }
     }
+    #endif
 }
-
-

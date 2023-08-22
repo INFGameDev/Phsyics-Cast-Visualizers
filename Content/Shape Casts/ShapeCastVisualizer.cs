@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Events;
+using INFAttributes;
 
 namespace PhysCastVisualier
 {

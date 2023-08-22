@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System;
 using UnityEngine.Profiling;
+using INFAttributes;
 
 namespace PhysCastVisualier
 {
