@@ -68,7 +68,7 @@ namespace PhysCastVisualier
                 castOffset.CalculateCastPosition(radius, direction, castTransform);
 
             Gizmos.color = GetDebugColor();
-            Gizmos.DrawWireMesh(castMesh,  castOffset.relativePosition, castTransform.rotation, Vector3.one * radius * 2);
+            Gizmos.DrawWireSphere(castOffset.relativePosition, radius);
         }
     }   
 }
